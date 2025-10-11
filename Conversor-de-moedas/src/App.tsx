@@ -7,19 +7,17 @@ function App() {
   const theme = useUiStore(state => state.theme);
 
   return (
-    <div 
-      // ... classes de tema
-      className={`${theme} min-h-screen transition-colors duration-300 ${theme === 'dark' ? 'bg-gray-900' : 'bg-gray-100'}`}
-    >
-      <Layout>
-       
-        <Converter />
-  
-        <Favorites />
+  <div 
+     className={`${theme} min-h-screen transition-colors duration-300 ${theme === 'dark' ? 'bg-gray-900' : 'bg-gray-100'}`}
+  >
+   <Layout>
+    <Converter />
 
-      </Layout>
-    </div>
-  );
+     <Favorites />
+
+  </Layout>
+</div>
+);
 }
 
 export default App;
