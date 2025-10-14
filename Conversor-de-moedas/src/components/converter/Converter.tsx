@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useCurrencyStore } from '../../store/currencyStore'; 
 import { calculateConversion } from '../../utils/conversion';
 import { format } from 'date-fns'; 
+import { ChartCard } from './ChartCard'; // <<< NOVO: Importa o componente de gráfico
 
 // ----------------------------------------------------
 // Componente auxiliar de Card reutilizado
@@ -250,6 +251,10 @@ export const Converter: React.FC = () => {
             </Card>
             
             <HistoryCard />
+            
+            {/* NOVO: Componente do Gráfico Histórico */}
+            <ChartCard />
+            
         </div>
     );
 };
