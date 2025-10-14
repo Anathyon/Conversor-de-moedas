@@ -2,11 +2,8 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useCurrencyStore } from '../../store/currencyStore'; 
 import { calculateConversion } from '../../utils/conversion';
 import { format } from 'date-fns'; 
-import { ChartCard } from './ChartCard'; // <<< NOVO: Importa o componente de gráfico
+import { ChartCard } from './ChartCard'; 
 
-// ----------------------------------------------------
-// Componente auxiliar de Card reutilizado
-// ----------------------------------------------------
 const Card: React.FC<{ children: React.ReactNode, title: string }> = ({ children, title }) => {
     const cardClasses = `
         rounded-lg shadow-md 

@@ -6,19 +6,19 @@ import { fetchAllRatesFromAPI, fetchHistoricalRates } from '../api/currencyApi';
 // 1. ESTADO
 // ------------------------------------
 interface CurrencyState {
-  // CORRIGIDO: A chave é o código da moeda (ex: "BRL"), o valor é a taxa (número) baseada em USD.
-  rates: Record<string, number>; 
-  availableCurrencies: string[]; 
+  // A chave e o codigo da moeda (ex: "BRL"), o valor e a taxa (numero) baseada em USD.
+  rates: Record<string, number>;
+  availableCurrencies: string[];
   favorites: string[];
   history: ConversionHistoryItem[];
   
-  isLoading: boolean; // para taxas instantâneas
-  error: string | null;
+  isLoading: boolean; // para taxas instantaneas
+  error: string | null; // Usado para erros de conversao instantanea E historica
   lastUpdated: number | null;
   
-  // NOVO ESTADO: Para o gráfico
-  historicalData: ApiRateData[]; 
-  isHistoryLoading: boolean; // para taxas históricas
+  // ESTADO GRAFICO
+  historicalData: ApiRateData[];
+  isHistoryLoading: boolean;
 }
 
 // ------------------------------------
@@ -27,7 +27,7 @@ interface CurrencyState {
 interface CurrencyActions {
   // API
   fetchRates: () => Promise<void>;
-  fetchHistoricalData: (fromCode: string, toCode: string) => Promise<void>; // NOVA AÇÃO
+  fetchHistoricalData: (fromCode: string, toCode: string) => Promise<void>; 
   
   // Favorites
   toggleFavorite: (code: string) => void;
@@ -36,19 +36,18 @@ interface CurrencyActions {
   addHistoryItem: (item: Omit<ConversionHistoryItem, 'id' | 'timestamp'>) => void;
   clearHistory: () => void;
   
-  // Conversão
+  // Conversao (Input do Formulario)
   setFromCurrency: (code: string) => void;
   setToCurrency: (code: string) => void;
   setAmount: (amount: number) => void;
   
-  // Estado de Input do Formulário
   fromCurrency: string;
   toCurrency: string;
   amount: number;
 }
 
 // ------------------------------------
-// 3. CRIAÇÃO DO STORE
+// 3. CRIACAO DO STORE
 // ------------------------------------
 type CurrencyStore = CurrencyState & CurrencyActions;
 
@@ -62,7 +61,7 @@ export const useCurrencyStore = create<CurrencyStore>((set, get) => ({
   error: null,
   lastUpdated: null,
   
-  // ESTADO INICIAL GRÁFICO
+  // ESTADO INICIAL GRAFICO
   historicalData: [],
   isHistoryLoading: false,
   
@@ -70,7 +69,7 @@ export const useCurrencyStore = create<CurrencyStore>((set, get) => ({
   toCurrency: 'BRL',
   amount: 1,
 
-  // AÇÕES LOCAIS (Mantidas)
+  // ACOES LOCAIS (Mantidas)
   setFromCurrency: (code) => set({ fromCurrency: code }),
   setToCurrency: (code) => set({ toCurrency: code }),
   setAmount: (amount) => set({ amount }),
@@ -96,68 +95,61 @@ export const useCurrencyStore = create<CurrencyStore>((set, get) => ({
   clearHistory: () => set({ history: [] }),
 
   // ------------------------------------
-  // AÇÃO ASSÍNCRONA (API TAXAS INSTANTÂNEAS) - CORRIGIDA
+  // ACAO ASSINCRONA (API TAXAS INSTANTANEAS)
   // ------------------------------------
   fetchRates: async () => {
     if (get().isLoading) return; 
 
-    set({ isLoading: true, error: null });
+    set({ isLoading: true, error: null }); // Limpa erros anteriores de qualquer tipo
     
     try {
-      const apiData: Record<string, ApiRateData> = await fetchAllRatesFromAPI();
+      // fetchAllRatesFromAPI ja esta atualizada para ExchangeRate-API
+      const newRates: Record<string, number> = await fetchAllRatesFromAPI();
       
-      // AJUSTE CHAVE: Inicializa com USD: 1 para a taxa base
-      const newRates: Record<string, number> = { USD: 1 }; 
-      const newCodes = new Set<string>(['USD']); // Inclui USD nas moedas disponíveis
-
-      for (const key in apiData) {
-        const rateData = apiData[key];
-        
-        const rateValue = parseFloat(rateData.bid);
-        
-        if (!isNaN(rateValue) && rateValue > 0) {
-          // Armazena a taxa usando o código de destino (BRL, EUR, etc.)
-          newRates[rateData.codein] = rateValue;
-          
-          newCodes.add(rateData.code); 
-          newCodes.add(rateData.codein);
-        }
+      const newCodes = new Set<string>(['USD']);
+      for (const code in newRates) {
+        newCodes.add(code);
       }
       
       const availableCurrencies = Array.from(newCodes).sort();
       
       set({ 
-        rates: newRates, // Formato { "BRL": 5.20, "USD": 1, ... }
+        rates: newRates, 
         availableCurrencies,
         isLoading: false,
         lastUpdated: Date.now(),
       });
 
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : "Erro desconhecido ao buscar taxas.";
+      // Este erro afeta a conversao instantanea
+      const errorMessage = err instanceof Error ? err.message : "Erro desconhecido ao buscar taxas instantaneas.";
       set({ error: errorMessage, isLoading: false, lastUpdated: Date.now() });
     }
   },
 
   // ------------------------------------
-  // AÇÃO ASSÍNCRONA (API TAXAS HISTÓRICAS) - NOVA
+  // ACAO ASSINCRONA (API TAXAS HISTORICAS)
   // ------------------------------------
   fetchHistoricalData: async (fromCode, toCode) => {
-      set({ isHistoryLoading: true, error: null });
+      // Limpa o erro e o loading do historico ANTES de tentar buscar
+      set({ isHistoryLoading: true, error: null, historicalData: [] }); 
       try {
+          // fetchHistoricalRates agora busca 7 pontos de dados simulados
           const data = await fetchHistoricalRates(fromCode, toCode);
           
           set({ 
               historicalData: data, 
-              isHistoryLoading: false 
+              isHistoryLoading: false,
+              error: null // Garante que o erro seja limpo se o historico for bem-sucedido
           });
           
       } catch (err) {
-          const errorMessage = err instanceof Error ? err.message : "Erro desconhecido ao buscar histórico.";
+          // Armazena a mensagem de erro especifica para a UI do grafico
+          const errorMessage = err instanceof Error ? err.message : "Erro desconhecido ao buscar historico.";
           set({ 
-              error: errorMessage, 
+              error: `Falha na API Historica: ${errorMessage}`, 
               isHistoryLoading: false, 
-              historicalData: [] // Limpa em caso de erro
+              historicalData: [] 
           });
       }
   },
