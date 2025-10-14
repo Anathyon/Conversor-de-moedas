@@ -11,9 +11,9 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
   const themeIcon = theme === 'dark' ? '☀️' : '🌙';
   const themeText = theme === 'dark' ? 'Modo Claro' : 'Modo Escuro';
 
-  // Classes Tailwind para o fundo, texto e sombra (mantemos o modo claro/escuro aqui!)
+  // Classes Tailwind
   const containerClasses = `
-    shadow-2xl rounded-xl w-full max-w-4xl mx-auto my-10 relative
+    shadow-2xl rounded-xl w-full max-w-4xl relative
     bg-white dark:bg-gray-800 dark:text-gray-100 transition-colors duration-300
   `;
   
@@ -23,16 +23,28 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
     dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600
   `;
   
-  // Usaremos o style para o padding do container principal (10px em cima/baixo, 30px nas laterais)
+  // Estilos convertidos para REM (30px = 1.875rem)
   const containerStyle: React.CSSProperties = {
-      paddingTop: '30px',
-      paddingBottom: '30px',
-      paddingLeft: '30px',
-      paddingRight: '30px',
+      paddingTop: '1.875rem', // 30px
+      paddingBottom: '1.875rem', // 30px
+      paddingLeft: '1.875rem', // 30px
+      paddingRight: '1.875rem', // 30px
+  };
+  
+  // Estilos para o Main (grid) convertidos para REM (32px = 2rem, 40px = 2.5rem)
+  const mainStyle: React.CSSProperties = {
+      gap: '2rem', // 32px
+      marginTop: '2.5rem', // 40px
+  };
+  
+  // Estilos do wrapper externo convertidos para REM
+  const wrapperStyle: React.CSSProperties = {
+      paddingTop: '2.5rem', // 40px
+      paddingBottom: '5rem', // 80px
   };
 
   return (
-    <div className="flex justify-center items-start pt-10 pb-20">
+    <div className="flex justify-center items-start" style={wrapperStyle}>
       <div className={containerClasses} style={containerStyle}>
         
         <button
@@ -54,10 +66,10 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
           </p>
         </header>
 
-        {/* O grid principal para os cards. Usamos style para definir o gap. */}
+        {/* O grid principal: 3 colunas em telas grandes (LG) */}
         <main 
             className="grid grid-cols-1 lg:grid-cols-3"
-            style={{ gap: '32px', marginTop: '40px' }} // 32px de gap entre os elementos e 40px de margin-top
+            style={mainStyle}
         >
           {children}
         </main>

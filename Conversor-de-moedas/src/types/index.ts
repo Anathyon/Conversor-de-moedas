@@ -11,11 +11,20 @@ export interface ConversionHistoryItem {
   timestamp: number;
 }
 
-// O formato de retorno da sua API no endpoint de taxas (Ajuste conforme a sua API)
+// ----------------------------------------------------
+// NOVO: O formato de retorno da sua API no endpoint de taxas
+// (Baseado no formato comum de APIs de cotação como a AwesomeAPI)
+// ----------------------------------------------------
 export interface ApiRateData {
-    code: string; // Ex: "USD"
-    codein: string; // Ex: "BRL"
-    bid: string; // O valor da cotação como string (será convertido para number no store)
-    name: string;
-    // ... adicione outros campos que sua API retornar se for usá-los
+    // Exemplo: No par USDBRL, 'code' seria USD e 'codein' seria BRL
+    code: string; 
+    codein: string; 
+    
+    // O valor da cotação (bid) vem como string e é convertido no store
+    bid: string; 
+    
+    name: string; // Nome completo do par (ex: "Dólar Americano/Real Brasileiro")
+    high: string; // Máxima
+    low: string; // Mínima
+    // Adicione outros campos se necessário, mas estes são suficientes para a conversão:
 }
