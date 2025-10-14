@@ -1,7 +1,9 @@
 import React, { useEffect } from 'react';
 import { useCurrencyStore } from '../../store/currencyStore';
-// Instale e importe sua biblioteca de gráficos aqui (ex: Recharts)
-// import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'; 
+// IMPORTAÇÕES NECESSÁRIAS DO RECHARTS
+import { 
+    LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer 
+} from 'recharts'; 
 
 
 // Componente auxiliar de Card - (Copie a definição do seu Converter.tsx se necessário, ou importe)
@@ -41,11 +43,13 @@ export const ChartCard: React.FC = () => {
     }, [fromCurrency, toCurrency, fetchHistoricalData]);
     
     // Preparação dos dados para o gráfico
-    const chartData = historicalData.map((item, index) => ({
-        // Como ApiRateData não tem timestamp, usamos índice para simular datas
-        date: new Date(Date.now() - (historicalData.length - index) * 24 * 60 * 60 * 1000).toLocaleDateString('pt-BR'), 
-        rate: parseFloat(item.bid),
-    })).reverse(); 
+    const chartData = historicalData
+        .map((item, index) => ({
+            // Como ApiRateData não tem timestamp, usamos índice para simular datas
+            date: new Date(Date.now() - (historicalData.length - index) * 24 * 60 * 60 * 1000).toLocaleDateString('pt-BR'), 
+            rate: parseFloat(item.bid),
+        }))
+        .reverse(); // Inverte para ter a data mais antiga na esquerda
 
     const title = `Cotação Histórica: ${fromCurrency} / ${toCurrency} (30 Dias)`;
 
@@ -57,20 +61,48 @@ export const ChartCard: React.FC = () => {
                 )}
                 
                 {!isHistoryLoading && chartData.length > 0 && (
-                    // --- ÁREA DE RENDERIZAÇÃO DO GRÁFICO ---
+                    // --- ÁREA DE RENDERIZAÇÃO DO GRÁFICO REAL (RECHARTS) ---
                     <div style={{ width: '100%', height: 300 }}>
-                        {/* !!! IMPORTANTE !!!
-                            SUBSTITUA ESTE PELA RENDERIZAÇÃO DO SEU COMPONENTE DE GRÁFICO (Recharts, Chart.js, etc.) 
-                        */}
-                        <p className="flex items-center justify-center h-full text-lg font-medium text-green-600 dark:text-green-400 border border-dashed border-gray-400 dark:border-gray-600 rounded-lg">
-                           GRÁFICO DE LINHA: {fromCurrency} vs {toCurrency}
-                        </p>
+                        <ResponsiveContainer width="100%" height="100%">
+                            <LineChart data={chartData} margin={{ top: 5, right: 20, left: -20, bottom: 5 }}>
+                                <CartesianGrid strokeDasharray="3 3" stroke="#555" />
+                                {/* Exibe a data no eixo X. Usamos filter para evitar sobreposição de muitos labels. */}
+                                <XAxis 
+                                    dataKey="date" 
+                                    tick={{ fontSize: 10, fill: '#9ca3af' }}
+                                    interval="preserveStartEnd"
+                                    // Adiciona um filtro para mostrar apenas 5-7 labels
+                                    tickCount={7} 
+                                />
+                                {/* Exibe a taxa no eixo Y. Formata para 4 casas decimais. */}
+                                <YAxis 
+                                    domain={['auto', 'auto']} 
+                                    tickFormatter={value => value.toFixed(4)} 
+                                    tick={{ fontSize: 10, fill: '#9ca3af' }}
+                                />
+                                {/* Tooltip ao passar o mouse */}
+                                <Tooltip 
+                                    formatter={(value: number) => [value.toFixed(4), 'Taxa']} 
+                                    labelFormatter={(label) => `Data: ${label}`} 
+                                    contentStyle={{ backgroundColor: '#2d3748', border: 'none' }}
+                                    labelStyle={{ color: '#fff' }}
+                                />
+                                <Line 
+                                    type="monotone" 
+                                    dataKey="rate" 
+                                    stroke="#10b981" // Cor verde do seu app
+                                    dot={false} // Remove os pontos de dados
+                                    strokeWidth={2} 
+                                />
+                            </LineChart>
+                        </ResponsiveContainer>
                     </div>
+                    // --------------------------------------------------------
                 )}
                 
                 {!isHistoryLoading && chartData.length === 0 && (
                     <p className="text-gray-500 dark:text-gray-400">
-                        Dados históricos não encontrados para este par ou período.
+                        Dados históricos não encontrados para este par ou houve um erro na API.
                     </p>
                 )}
             </Card>

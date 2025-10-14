@@ -1,60 +1,55 @@
-// Define a estrutura esperada para as taxas e o resultado da conversão
-interface Rates {
-    [key: string]: number; // Ex: { "BRL": 5.4, "EUR": 0.92, ... }
-}
-
 interface ConversionResult {
     success: boolean;
     result: number;
     rate: number;
 }
 
-/**
- * Calcula a conversão de um montante de uma moeda para outra usando taxas baseadas em USD.
- * @param amount O valor a ser convertido.
- * @param fromCode O código da moeda de origem (ex: 'USD', 'BRL').
- * @param toCode O código da moeda de destino (ex: 'EUR', 'BRL').
- * @param rates O objeto de taxas onde todas são taxas de 1 USD.
- * @returns Um objeto contendo o resultado da conversão e a taxa utilizada.
- */
-export const calculateConversion = (
+// A função recebe as taxas no formato { "BRL": 5.20, "USD": 1, ... }
+export function calculateConversion(
     amount: number,
     fromCode: string,
     toCode: string,
-    rates: Rates
-): ConversionResult => {
-    // Caso especial: conversão de uma moeda para ela mesma
-    if (fromCode === toCode) {
-        return { success: true, result: amount, rate: 1 };
-    }
+    rates: Record<string, number>
+): ConversionResult & { error?: string } {
 
-    // 1. Obter taxas de câmbio para a moeda de origem e destino
-    // A API retorna a taxa de X para USD (Se for USD, a taxa é 1)
-    const rateFrom = rates[fromCode]; 
+    // 1. Verificação da taxa de destino (To)
     const rateTo = rates[toCode];
-
-    // 2. Verificar se ambas as taxas existem
-    if (!rateFrom || !rateTo) {
-        console.error(`Taxa não encontrada para ${fromCode} ou ${toCode}`);
-        return { success: false, result: 0, rate: 0 };
+    if (rateTo === undefined || rateTo === 0) {
+        // Taxa de destino é necessária para qualquer conversão
+        console.error(`Taxa não encontrada para ${toCode}`);
+        return { success: false, result: 0, rate: 0, error: `Taxa de destino (${toCode}) não disponível.` };
     }
 
-    let result = 0;
-    let finalRate = 0;
+    // 2. Verificação da taxa de origem (From)
+    const rateFrom = rates[fromCode];
+    if (rateFrom === undefined || rateFrom === 0) {
+        // Taxa de origem é necessária para a conversão
+        console.error(`Taxa não encontrada para ${fromCode}`);
+        return { success: false, result: 0, rate: 0, error: `Taxa de origem (${fromCode}) não disponível.` };
+    }
+    
+    // 3. CÁLCULO BASEADO NO USD (Ouro da conversão de moedas)
+    // Passo 1: Converter o Montante de 'FROM' para a Moeda Base (USD)
+    // Valor em USD = Montante / Taxa de 'FROM' para USD (ex: 100 BRL / 5.00 BRL/USD = 20 USD)
+    const valueInUSD = amount / rateFrom;
+    
+    // Passo 2: Converter o Valor em USD para a Moeda de Destino ('TO')
+    // Resultado = Valor em USD * Taxa de 'TO' para USD (ex: 20 USD * 5.20 BRL/USD = 104 BRL)
+    const finalResult = valueInUSD * rateTo;
+    
+    // 4. Calcular a Taxa Direta (para exibir no histórico)
+    // Taxa Direta = (Taxa de 'TO' para USD) / (Taxa de 'FROM' para USD)
+    // Ex: Taxa BRL/USD (5.20) / Taxa EUR/USD (0.92) = Taxa EUR/BRL
+    const directRate = rateTo / rateFrom;
 
-    // 3. Calcular a conversão
-    
-    // Converte o montante de 'From' para USD (USD é a moeda base no rates)
-    // Se a taxa for 5.0 (BRL para USD), 1 BRL = 1/5.0 USD = 0.2 USD
-    const amountInUSD = amount / rateFrom;
-    
-    // Converte de USD para 'To'
-    // Se a taxa for 0.92 (EUR para USD), 1 USD = 0.92 EUR
-    result = amountInUSD * rateTo;
+    // A conversão de sucesso só ocorre se houver taxas válidas e o resultado for finito
+    if (isNaN(finalResult) || !isFinite(finalResult)) {
+         return { success: false, result: 0, rate: 0, error: "Cálculo resultou em valor inválido." };
+    }
 
-    // 4. Calcular a taxa final para exibição (1 From = X To)
-    // Taxa de 1 From para 1 To = (1 / rateFrom) * rateTo
-    finalRate = rateTo / rateFrom;
-    
-    return { success: true, result: result, rate: finalRate };
-};
+    return {
+        success: true,
+        result: finalResult,
+        rate: directRate,
+    };
+}
