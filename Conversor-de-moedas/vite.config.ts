@@ -10,10 +10,13 @@ export default defineConfig({
         manualChunks: {
           vendor: ['react', 'react-dom'],
           zustand: ['zustand'],
-          lucide: ['lucide-react']
+          lucide: ['lucide-react'],
+          charts: ['recharts'],
+          utils: ['date-fns']
         }
       }
-    }
+    },
+    chunkSizeWarningLimit: 1000
   },
   server: {
     host: true,
