@@ -8,13 +8,10 @@ import { FavoritesWrapper } from './components/favorites/FavoritesWrapper';
 const App: React.FC = () => {
   const { theme, initializeTheme } = useUiStore();
 
-  // Inicializa o tema apenas uma vez na montagem
   useEffect(() => {
     initializeTheme();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // Sem dependências para evitar loops
+  }, [initializeTheme]);
 
-  // Aplica o tema ao DOM
   useEffect(() => {
     if (theme === 'dark') {
       document.documentElement.classList.add('dark');
@@ -26,18 +23,11 @@ const App: React.FC = () => {
   }, [theme]);
 
   return (
-    <div style={{ minHeight: '100vh' }}> 
+    <div style={{ minHeight: '100dvh' }}> 
       <Layout>
-        {/* COLUNA 1: Conversor de Moedas */}
         <Converter />
-        
-        {/* COLUNA 2 e 3 (Direita): Favoritos e Gerenciador */}
         <FavoritesWrapper /> 
-        
-        {/* LINHA 2 (Abaixo, abrangendo 3 colunas): Gráfico */}
-        <div style={{ gridColumn: 'span 3' }}> 
-          <ChartCard />
-        </div>
+        <ChartCard />
       </Layout>
     </div>
   );

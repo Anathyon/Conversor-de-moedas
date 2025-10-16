@@ -9,17 +9,17 @@ const Card: React.FC<{ children: React.ReactNode, title: string }> = ({ children
   
   const cardStyle: React.CSSProperties = {
     borderRadius: '0.5rem',
-    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+    boxShadow: '0 0.25rem 0.375rem -0.0625rem rgba(0, 0, 0, 0.1)',
     backgroundColor: theme === 'dark' ? '#374151' : '#f9fafb',
-    padding: '20px',
-    marginBottom: '16px'
+    padding: '1.25rem',
+    marginBottom: '1rem'
   };
   
   const titleStyle: React.CSSProperties = {
     fontSize: '1.25rem',
     fontWeight: '600',
     color: '#059669',
-    marginBottom: '16px',
+    marginBottom: '1rem',
     margin: 0
   };
 
@@ -31,23 +31,22 @@ const Card: React.FC<{ children: React.ReactNode, title: string }> = ({ children
   );
 };
 
-// Componente Histórico
 const HistoryCard: React.FC = () => {
   const history = useCurrencyStore(state => state.history);
   const clearHistory = useCurrencyStore(state => state.clearHistory);
   const { theme } = useUiStore();
   
   const containerStyle: React.CSSProperties = {
-    marginTop: '32px'
+    marginTop: '2rem'
   };
   
   const buttonStyle: React.CSSProperties = {
-    fontSize: '14px',
+    fontSize: '0.875rem',
     color: '#ef4444',
     background: 'none',
     border: 'none',
     cursor: 'pointer',
-    marginBottom: '10px',
+    marginBottom: '0.625rem',
     padding: 0
   };
   
@@ -59,14 +58,14 @@ const HistoryCard: React.FC = () => {
   
   const itemStyle: React.CSSProperties = {
     borderBottom: `1px solid ${theme === 'dark' ? '#4b5563' : '#e5e7eb'}`,
-    fontSize: '14px',
+    fontSize: '0.875rem',
     color: theme === 'dark' ? '#d1d5db' : '#374151',
-    padding: '5px 0'
+    padding: '0.3125rem 0'
   };
   
   const emptyStyle: React.CSSProperties = {
     color: theme === 'dark' ? '#9ca3af' : '#6b7280',
-    padding: '5px'
+    padding: '0.3125rem'
   };
   
   return (
@@ -107,11 +106,9 @@ const HistoryCard: React.FC = () => {
   );
 };
 
-// Componente principal Converter
 export const Converter: React.FC = () => {
   const { theme } = useUiStore();
   
-  // Conexão com o store
   const fetchRates = useCurrencyStore(state => state.fetchRates);
   const setFromCurrency = useCurrencyStore(state => state.setFromCurrency);
   const setToCurrency = useCurrencyStore(state => state.setToCurrency);
@@ -127,21 +124,17 @@ export const Converter: React.FC = () => {
   const toCurrency = useCurrencyStore(state => state.toCurrency);
   const amount = useCurrencyStore(state => state.amount);
   
-  // Estado local
   const [result, setResult] = useState<number | null>(null);
   const [conversionRate, setConversionRate] = useState<number | null>(null);
   const hasFetched = useRef(false); 
 
-  // Busca taxas apenas uma vez na montagem
   useEffect(() => {
     if (Object.keys(rates).length === 0 && !hasFetched.current) {
       hasFetched.current = true; 
       fetchRates();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // Sem dependências para evitar loops
+  }, [fetchRates, rates]);
 
-  // Lógica de conversão
   const handleConvert = () => {
     if (!amount || amount <= 0 || !fromCurrency || !toCurrency || Object.keys(rates).length === 0) return;
     
@@ -164,15 +157,13 @@ export const Converter: React.FC = () => {
     }
   };
   
-  // Estilos
   const containerStyle: React.CSSProperties = {
-    gridColumn: 'span 2',
     width: '100%'
   };
   
   const resultStyle: React.CSSProperties = {
     textAlign: 'center',
-    marginBottom: '16px'
+    marginBottom: '1rem'
   };
   
   const resultTextStyle: React.CSSProperties = {
@@ -185,26 +176,26 @@ export const Converter: React.FC = () => {
     fontSize: '3rem',
     fontWeight: '800',
     color: '#059669',
-    marginTop: '4px',
+    marginTop: '0.25rem',
     margin: 0
   };
   
   const rateTextStyle: React.CSSProperties = {
-    fontSize: '14px',
+    fontSize: '0.875rem',
     color: theme === 'dark' ? '#9ca3af' : '#6b7280',
-    marginTop: '8px',
+    marginTop: '0.5rem',
     margin: 0
   };
   
   const formStyle: React.CSSProperties = {
     display: 'grid',
-    gridTemplateColumns: '1fr 1fr 1fr',
-    gap: '15px',
-    padding: '20px 0'
+    gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+    gap: 'clamp(0.75rem, 2vw, 0.9375rem)',
+    padding: 'clamp(1rem, 3vw, 1.25rem) 0'
   };
   
   const inputStyle: React.CSSProperties = {
-    padding: '8px',
+    padding: '0.5rem',
     border: `1px solid ${theme === 'dark' ? '#4b5563' : '#d1d5db'}`,
     borderRadius: '0.5rem',
     backgroundColor: theme === 'dark' ? '#4b5563' : '#ffffff',
@@ -215,31 +206,33 @@ export const Converter: React.FC = () => {
   
   const labelStyle: React.CSSProperties = {
     display: 'block',
-    fontSize: '14px',
+    fontSize: '0.875rem',
     fontWeight: '500',
     color: theme === 'dark' ? '#9ca3af' : '#6b7280',
-    marginBottom: '4px'
+    marginBottom: '0.25rem'
   };
   
   const controlsStyle: React.CSSProperties = {
     display: 'flex',
-    alignItems: 'center',
-    gap: '10px',
-    marginTop: '10px',
-    marginBottom: '10px'
+    flexDirection: 'column',
+    alignItems: 'stretch',
+    gap: 'clamp(0.5rem, 2vw, 0.625rem)',
+    marginTop: 'clamp(0.5rem, 2vw, 0.625rem)',
+    marginBottom: 'clamp(0.5rem, 2vw, 0.625rem)'
   };
   
   const buttonStyle: React.CSSProperties = {
-    padding: '10px 20px',
+    padding: 'clamp(0.5rem, 2vw, 0.625rem) clamp(1rem, 3vw, 1.25rem)',
     borderRadius: '0.5rem',
     border: 'none',
     cursor: 'pointer',
-    fontSize: '14px',
+    fontSize: 'clamp(0.875rem, 2vw, 0.875rem)',
     fontWeight: '500',
     transition: 'background-color 0.2s',
     display: 'flex',
     alignItems: 'center',
-    justifyContent: 'center'
+    justifyContent: 'center',
+    width: '100%'
   };
   
   const primaryButtonStyle: React.CSSProperties = {
@@ -262,26 +255,25 @@ export const Converter: React.FC = () => {
   };
   
   const alertStyle: React.CSSProperties = {
-    padding: '12px',
-    borderRadius: '5px',
-    marginTop: '15px',
-    marginBottom: '15px',
+    padding: '0.75rem',
+    borderRadius: '0.3125rem',
+    marginTop: '0.9375rem',
+    marginBottom: '0.9375rem',
     border: `1px solid ${error ? '#fecaca' : '#ffeeba'}`,
     backgroundColor: error ? '#fee2e2' : '#fffbe6',
     color: error ? '#991b1b' : '#856404'
   };
   
   const lastUpdateStyle: React.CSSProperties = {
-    fontSize: '14px',
+    fontSize: '0.875rem',
     color: theme === 'dark' ? '#9ca3af' : '#6b7280',
-    marginLeft: '16px'
+    marginLeft: '1rem'
   };
 
   return (
     <div style={containerStyle}> 
       <Card title="Conversão de Moedas">
         
-        {/* Resultado da Conversão */}
         {result !== null && (
           <div style={resultStyle}>
             <p style={resultTextStyle}>
@@ -298,7 +290,6 @@ export const Converter: React.FC = () => {
           </div>
         )}
         
-        {/* Formulário de conversão */}
         <div>
           <div style={formStyle}>
             <div>
@@ -338,7 +329,6 @@ export const Converter: React.FC = () => {
             </div>
           </div>
 
-          {/* Botões e Mensagens */}
           <div style={controlsStyle}>
             <button 
               onClick={handleConvert} 
@@ -381,7 +371,6 @@ export const Converter: React.FC = () => {
             </span>
           </div>
 
-          {/* Mensagem de Erro/Aviso */}
           {((error || (Object.keys(rates).length === 0 && !isLoading))) && (
             <div style={alertStyle}>
               {error 

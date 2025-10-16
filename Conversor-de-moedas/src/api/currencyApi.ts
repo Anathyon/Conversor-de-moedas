@@ -3,7 +3,6 @@ import { type ApiRateData } from '../types';
 // Variáveis de ambiente
 const EXCHANGE_RATE_API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 const EXCHANGE_RATE_API_KEY = import.meta.env.VITE_API_KEY;
-// URL da API Frankfurter (Sem necessidade de chave, ideal para histórico)
 const FRANKFURTER_API_BASE_URL = "https://api.frankfurter.app"; 
 
 
