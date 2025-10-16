@@ -1,8 +1,11 @@
 import { type ApiRateData } from '../types';
 
-// Variáveis de ambiente (assumindo que VITE_COINGECKO_BASE_URL foi removida)
+// Variáveis de ambiente
 const EXCHANGE_RATE_API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 const EXCHANGE_RATE_API_KEY = import.meta.env.VITE_API_KEY;
+// URL da API Frankfurter (Sem necessidade de chave, ideal para histórico)
+const FRANKFURTER_API_BASE_URL = "https://api.frankfurter.app"; 
+
 
 /* -------------------------------------------------------------------------- */
 /* 1. EXCHANGE RATE API (TAXAS INSTANTÂNEAS)   */
@@ -10,18 +13,15 @@ const EXCHANGE_RATE_API_KEY = import.meta.env.VITE_API_KEY;
 
 /**
  * Interface para a resposta da ExchangeRate-API (Taxas Instantâneas)
- * @example
- * { "result": "success", "conversion_rates": { "USD": 1, "BRL": 5.2, ... } }
  */
 interface ExchangeRatesResponse {
     result: string;
     'conversion_rates': Record<string, number>;
-    'error-type'?: string; // Para capturar erros da API
+    'error-type'?: string; 
 }
 
 /**
  * Busca todas as taxas de câmbio disponíveis com base na moeda USD usando a ExchangeRate-API.
- * @returns Um objeto onde a chave é o código da moeda e o valor é a taxa (baseada em USD).
  */
 export async function fetchAllRatesFromAPI(): Promise<Record<string, number>> {
     
@@ -42,7 +42,6 @@ export async function fetchAllRatesFromAPI(): Promise<Record<string, number>> {
             throw new Error(`Falha na API Instantânea (${response.status}): ${errorType}. Verifique a chave da API.`);
         }
         
-        // Retorna apenas as taxas de conversão (ex: { "USD": 1, "BRL": 5.2, ... })
         return data.conversion_rates;
 
     } catch (error) {
@@ -53,30 +52,40 @@ export async function fetchAllRatesFromAPI(): Promise<Record<string, number>> {
 
 
 /* -------------------------------------------------------------------------- */
-/* 2. EXCHANGE RATE API (TAXAS HISTÓRICAS) - Versão Robusta */
+/* 2. FRANKFURTER API (TAXAS HISTÓRICAS) - Versão Robusta */
 /* -------------------------------------------------------------------------- */
 
 /**
- * Interface para a resposta da ExchangeRate-API (Histórico)
+ * Interface para a resposta da Frankfurter API (Histórico Diário)
  * @example
- * { "result": "success", "conversion_rate": 5.20 }
+ * { "amount": 1, "base": "USD", "date": "2023-01-01", "rates": { "BRL": 5.20 } }
  */
-interface ExchangeRateHistoryResponse {
-    result: string;
-    'conversion_rate'?: number; // A taxa de conversão direta
-    'error-type'?: string;
+interface FrankfurterHistoryResponse {
+    amount: number;
+    base: string;
+    date: string;
+    rates: Record<string, number>; // Ex: { "BRL": 5.20 }
 }
 
 /**
- * Busca taxas históricas dos últimos 7 dias. Se uma data falhar, ela é ignorada para não quebrar o gráfico.
- * @param fromCode Moeda de origem (ex: 'USD')
+ * Busca taxas históricas dos últimos 7 dias usando a Frankfurter API. 
+ * Se uma data falhar, ela é ignorada para não quebrar o gráfico.
+ *
+ * NOTA: A Frankfurter API não suporta criptomoedas (como BTC). Para estes pares, 
+ * o erro "Nenhum dado histórico encontrado" será retornado.
+ * * @param fromCode Moeda de origem (ex: 'USD')
  * @param toCode Moeda de destino (ex: 'BRL')
  * @returns Um array de objetos ApiRateData com os dados disponíveis.
  */
 export async function fetchHistoricalRates(fromCode: string, toCode: string): Promise<ApiRateData[]> {
     
-    if (!EXCHANGE_RATE_API_BASE_URL || !EXCHANGE_RATE_API_KEY) {
-        throw new Error("A chave e/ou URL da API de Histórico não estão configuradas corretamente.");
+    // A Frankfurter API usa EUR como base padrão se 'from' for omitido e não suporta criptomoedas.
+    if (fromCode === 'BTC' || toCode === 'BTC') {
+        throw new Error("Falha na API Histórica (404): moedas digitais (BTC) não são suportadas pela Frankfurter API.");
+    }
+
+    if (!FRANKFURTER_API_BASE_URL) {
+        throw new Error("A URL da API de Histórico (Frankfurter) não está configurada.");
     }
 
     const historicalData: ApiRateData[] = [];
@@ -91,46 +100,51 @@ export async function fetchHistoricalRates(fromCode: string, toCode: string): Pr
         date.setDate(today.getDate() - i); // Volta i dias
         
         const year = date.getFullYear();
-        // Os meses (0-11) e dias (1-31) devem ter 2 dígitos
         const month = (date.getMonth() + 1).toString().padStart(2, '0');
         const day = date.getDate().toString().padStart(2, '0');
         
-        const dateString = `${year}/${month}/${day}`;
-        // Endpoint: /history/code_base/year/month/day
-        const url = `${EXCHANGE_RATE_API_BASE_URL}/${EXCHANGE_RATE_API_KEY}/history/${fromCode}/${year}/${month}/${day}`;
+        const dateStringFrankfurter = `${year}-${month}-${day}`; // Formato YYYY-MM-DD
+        const dateStringApiRateData = `${year}/${month}/${day}`; // Formato YYYY/MM/DD
+
+        // Endpoint Frankfurter: /{data}?from={moeda_base}&to={moeda_destino}
+        const url = `${FRANKFURTER_API_BASE_URL}/${dateStringFrankfurter}?from=${fromCode}&to=${toCode}`;
 
         // Cria uma Promise para cada dia de busca
         const promise = fetch(url)
             .then(async (response) => {
-                const data: ExchangeRateHistoryResponse = await response.json();
+                const data: FrankfurterHistoryResponse = await response.json();
 
                 // 1. Falha na resposta (404, 500, etc.)
-                if (!response.ok || data.result !== 'success') {
-                    const errorType = data['error-type'] || response.statusText;
-                    // Lança um erro interno, que será pego pelo .catch abaixo (ignorando o dia)
-                    throw new Error(`Falha para ${dateString}: ${errorType}`);
+                // A Frankfurter retorna 200 OK mesmo quando não há dados, mas rates[toCode] estará vazio
+                if (!response.ok || !data.rates || data.rates[toCode] === undefined) {
+                    // Lança um erro interno para o .catch
+                    throw new Error(`Falha para ${dateStringFrankfurter}. Resposta: ${response.statusText}`);
                 }
                 
-                // 2. Sucesso: Se a taxa de conversão estiver presente
-                if (data.conversion_rate !== undefined) {
-                    const timestamp = date.getTime().toString(); // Timestamp em milissegundos
+                // 2. Sucesso: A taxa de conversão direta
+                const conversionRate = data.rates[toCode];
 
-                    // Adiciona o novo campo 'rate' que foi adicionado em ApiRateData
+                if (conversionRate !== undefined && conversionRate !== 0) {
+                    const timestamp = date.getTime().toString(); 
+
                     historicalData.push({
                         code: fromCode,
                         codein: toCode,
                         timestamp: timestamp,
                         name: `${fromCode}/${toCode}`,
-                        high: data.conversion_rate.toString(), 
-                        low: data.conversion_rate.toString(), 
-                        bid: data.conversion_rate.toString(), 
-                        create_date: dateString,
-                        rate: data.conversion_rate.toString(),
+                        high: conversionRate.toString(), 
+                        low: conversionRate.toString(), 
+                        bid: conversionRate.toString(), // Taxa de conversão direta
+                        create_date: dateStringApiRateData,
+                        rate: conversionRate.toString(),
                     });
+                } else {
+                     throw new Error(`Taxa de ${fromCode}/${toCode} não disponível no dia ${dateStringFrankfurter}.`);
                 }
             })
             .catch((error) => {
                 // Loga o erro, mas permite que o loop continue para os outros dias.
+                // Isso evita que um dia de erro quebre todo o gráfico.
                 console.warn(`[API Histórica - Aviso] Não foi possível obter dados para ${fromCode}/${toCode} para um dia:`, error.message);
             });
         
@@ -140,7 +154,7 @@ export async function fetchHistoricalRates(fromCode: string, toCode: string): Pr
     // Espera que todas as 7 requisições terminem (com sucesso ou com falha)
     await Promise.all(fetchPromises); 
 
-    // Se nenhum dado for encontrado, lançamos o erro final.
+    // Se nenhum dado for encontrado após todas as tentativas
     if (historicalData.length === 0) {
         throw new Error(`Falha na API Histórica: Nenhum dado histórico encontrado para ${fromCode}/${toCode} nas 7 datas verificadas.`);
     }

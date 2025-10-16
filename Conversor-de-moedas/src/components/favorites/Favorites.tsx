@@ -42,8 +42,7 @@ export const Favorites: React.FC = () => {
     // Conexão com o Store
     const availableCurrencies = useCurrencyStore(state => state.availableCurrencies);
     const favoriteCurrencies = useCurrencyStore(state => state.favorites);
-    const addFavorite = useCurrencyStore(state => state.addFavorite);
-    const removeFavorite = useCurrencyStore(state => state.removeFavorite);
+    const toggleFavorite = useCurrencyStore(state => state.toggleFavorite);
 
     // Estado Local para gerenciar a moeda selecionada no <select>
     const [selectedCurrency, setSelectedCurrency] = useState('');
@@ -54,11 +53,7 @@ export const Favorites: React.FC = () => {
     const handleManageFavorite = () => {
         if (!selectedCurrency) return;
         
-        if (isFavorite) {
-            removeFavorite(selectedCurrency);
-        } else {
-            addFavorite(selectedCurrency);
-        }
+        toggleFavorite(selectedCurrency);
         setSelectedCurrency(''); 
     };
 

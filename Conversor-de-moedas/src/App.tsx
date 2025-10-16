@@ -1,41 +1,46 @@
+import React, { useEffect } from 'react';
+import { Layout } from './components/layout/Layout'; 
 import { useUiStore } from './store/uiStore';
-import { Layout } from './components/layout/Layout';
-import { Converter } from './components/converter/Converter'; 
-// Assumindo que você renomeou o 'FavoritesWrapper' que eu te passei para 'Favorites'
-import { Favorites } from './components/favorites/Favorites'; 
+import { Converter } from './components/converter/Converter';
+import { ChartCard } from './components/converter/ChartCard'; 
+import { FavoritesWrapper } from './components/favorites/FavoritesWrapper'; 
 
-function App() {
-  // Busca o tema (Dark/Light) do Zustand para aplicar a classe no corpo da página
-  const theme = useUiStore(state => state.theme);
+const App: React.FC = () => {
+  const { theme, initializeTheme } = useUiStore();
+
+  // Inicializa o tema apenas uma vez na montagem
+  useEffect(() => {
+    initializeTheme();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Sem dependências para evitar loops
+
+  // Aplica o tema ao DOM
+  useEffect(() => {
+    if (theme === 'dark') {
+      document.documentElement.classList.add('dark');
+      document.body.style.backgroundColor = '#1F2937'; 
+    } else {
+      document.documentElement.classList.remove('dark');
+      document.body.style.backgroundColor = '#f3f4f6'; 
+    }
+  }, [theme]);
 
   return (
-    // Aplica o tema e o fundo geral da página (min-h-screen, dark mode colors)
-    <div 
-        className={`
-          min-h-screen transition-colors duration-300
-          ${theme === 'dark' ? 'bg-gray-900' : 'bg-gray-100'}
-        `}
-        // Para garantir que o Tailwind saiba qual tema está ativo, adicione 'data-mode' ou a classe 'dark'
-        // Se o seu setup Tailwind usa `class` para Dark Mode, a classe 'dark' deve ser aplicada ao elemento HTML ou BODY.
-        // Se estiver usando o 'class' strategy, você pode injetar a classe 'dark' aqui, se o `theme` for 'dark'.
-        data-theme={theme}
-    >
+    <div style={{ minHeight: '100vh' }}> 
       <Layout>
-          {/*             CORREÇÃO: Removemos o <div> extra com o grid.
-            Os componentes Converter e Favorites são agora filhos diretos de <Layout>.
-            O <Layout> já tem o grid de 3 colunas no seu <main>.
-            As classes lg:col-span-2 (no Converter) e lg:col-span-1 (no Favorites) 
-            agora funcionam corretamente dentro do grid do Layout.
-          */}
-          
-          {/* Ocupa 2/3 da largura em telas grandes */}
-          <Converter />
-          
-          {/* Ocupa 1/3 da largura em telas grandes */}
-          <Favorites />
+        {/* COLUNA 1: Conversor de Moedas */}
+        <Converter />
+        
+        {/* COLUNA 2 e 3 (Direita): Favoritos e Gerenciador */}
+        <FavoritesWrapper /> 
+        
+        {/* LINHA 2 (Abaixo, abrangendo 3 colunas): Gráfico */}
+        <div style={{ gridColumn: 'span 3' }}> 
+          <ChartCard />
+        </div>
       </Layout>
     </div>
   );
-}
+};
 
 export default App;

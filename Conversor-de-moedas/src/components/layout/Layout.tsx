@@ -1,5 +1,6 @@
 import React from 'react';
 import { useUiStore } from '../../store/uiStore';
+import { Sun, Moon } from 'lucide-react';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -8,69 +9,114 @@ interface LayoutProps {
 export const Layout: React.FC<LayoutProps> = ({ children }) => {
   const { theme, toggleTheme } = useUiStore();
   
-  const themeIcon = theme === 'dark' ? '☀️' : '🌙';
-  const themeText = theme === 'dark' ? 'Modo Claro' : 'Modo Escuro';
+  const themeText = theme === 'dark' ? 'Alternar para Modo Claro' : 'Alternar para Modo Escuro';
 
-  // Classes Tailwind
-  const containerClasses = `
-    shadow-2xl rounded-xl w-full max-w-4xl relative
-    bg-white dark:bg-gray-800 dark:text-gray-100 transition-colors duration-300
-  `;
-  
-  const buttonClasses = `
-    absolute top-4 right-4 p-2 rounded-full text-lg z-10 
-    bg-gray-200 text-gray-800 hover:bg-gray-300
-    dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600
-  `;
-  
-  // Estilos convertidos para REM (30px = 1.875rem)
   const containerStyle: React.CSSProperties = {
-      paddingTop: '1.875rem', // 30px
-      paddingBottom: '1.875rem', // 30px
-      paddingLeft: '1.875rem', // 30px
-      paddingRight: '1.875rem', // 30px
+    boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
+    borderRadius: '0.75rem',
+    width: '100%',
+    maxWidth: '1024px',
+    position: 'relative',
+    backgroundColor: theme === 'dark' ? '#374151' : '#ffffff',
+    color: theme === 'dark' ? '#f3f4f6' : '#111827',
+    minHeight: '500px',
+    padding: '30px',
+    transition: 'background-color 0.3s, color 0.3s'
   };
   
-  // Estilos para o Main (grid) convertidos para REM (32px = 2rem, 40px = 2.5rem)
-  const mainStyle: React.CSSProperties = {
-      gap: '2rem', // 32px
-      marginTop: '2.5rem', // 40px
+  const buttonStyle: React.CSSProperties = {
+    position: 'absolute',
+    top: '16px',
+    right: '16px',
+    padding: '8px',
+    borderRadius: '50%',
+    fontSize: '18px',
+    zIndex: 10,
+    backgroundColor: theme === 'dark' ? '#4b5563' : '#e5e7eb',
+    color: theme === 'dark' ? '#e5e7eb' : '#1f2937',
+    border: 'none',
+    cursor: 'pointer',
+    transition: 'background-color 0.2s',
+    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
   };
   
-  // Estilos do wrapper externo convertidos para REM
   const wrapperStyle: React.CSSProperties = {
-      paddingTop: '2.5rem', // 40px
-      paddingBottom: '5rem', // 80px
+    paddingTop: '40px',
+    paddingBottom: '80px',
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'flex-start'
   };
+  
+  const headerStyle: React.CSSProperties = {
+    marginBottom: '32px',
+    textAlign: 'center',
+    paddingTop: '32px'
+  };
+  
+  const titleStyle: React.CSSProperties = {
+    fontSize: 'clamp(1.875rem, 4vw, 2.25rem)',
+    fontWeight: 'bold',
+    color: '#059669',
+    margin: 0
+  };
+  
+  const subtitleStyle: React.CSSProperties = {
+    color: theme === 'dark' ? '#9ca3af' : '#6b7280',
+    marginTop: '8px',
+    margin: 0
+  };
+  
+  const mainStyle: React.CSSProperties = {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(1, minmax(0, 1fr))',
+    gap: '32px',
+    marginTop: '40px'
+  };
+
+  // Media query para telas grandes
+  const isLargeScreen = window.innerWidth >= 1024;
+  if (isLargeScreen) {
+    mainStyle.gridTemplateColumns = 'repeat(3, minmax(0, 1fr))';
+  }
 
   return (
-    <div className="flex justify-center items-start" style={wrapperStyle}>
-      <div className={containerClasses} style={containerStyle}>
+    <div style={wrapperStyle}>
+      <div style={containerStyle}>
         
+        {/* Botão de Alternância de Tema */}
         <button
           onClick={toggleTheme}
-          className={buttonClasses}
+          style={buttonStyle}
           aria-label={themeText}
           title={themeText}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.backgroundColor = theme === 'dark' ? '#6b7280' : '#d1d5db';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.backgroundColor = theme === 'dark' ? '#4b5563' : '#e5e7eb';
+          }}
         >
-          {themeIcon}
+          {theme === 'dark' ? (
+              <Sun style={{ width: '20px', height: '20px', color: '#fbbf24' }} />
+          ) : (
+              <Moon style={{ width: '20px', height: '20px', color: '#1f2937' }} />
+          )}
         </button>
 
-        <header className="mb-8 text-center pt-8">
-          <h1 className="text-3xl lg:text-4xl font-bold text-green-700 dark:text-green-400">
+        {/* Cabeçalho */}
+        <header style={headerStyle}>
+          <h1 style={titleStyle}>
             Conversor Inteligente de Moedas
           </h1>
-          <p className="text-gray-600 dark:text-gray-400 mt-2">
+          <p style={subtitleStyle}>
             Monitore taxas atualizadas, gerencie suas moedas favoritas e acompanhe o histórico 
             de conversões com uma experiência elegante construída em React e Zustand.
           </p>
         </header>
 
-        {/* O grid principal: 3 colunas em telas grandes (LG) */}
-        <main 
-            className="grid grid-cols-1 lg:grid-cols-3"
-            style={mainStyle}
-        >
+        {/* Grid principal */}
+        <main style={mainStyle}>
           {children}
         </main>
       </div>
