@@ -4,7 +4,14 @@
   "version": "1.0.0",
   "type": "module",
   "description": "Conversor Inteligente de Moedas - PWA responsiva com conversão em tempo real, favoritos e gráficos históricos",
-  "keywords": ["currency", "converter", "pwa", "react", "typescript", "responsive"],
+  "keywords": [
+    "currency",
+    "converter",
+    "pwa",
+    "react",
+    "typescript",
+    "responsive"
+  ],
   "author": "Anathyon Erysson <anathyon@protonmail.com>",
   "homepage": "https://conversor-moedas-inteligente.vercel.app",
   "scripts": {
