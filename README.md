@@ -29,7 +29,7 @@ Gerencie suas moedas preferidas de forma inteligente. O sistema permite:
 
 | Gerenciamento de Favoritos | Lista de Moedas Favoritas |
 |---------------------------|---------------------------|
-| <img src="./assets/favorites-management.png" width="400"> | <img src="./assets/favorites-list.png" width="400"> |
+| <img src="https://github.com/Anathyon/Conversor-de-moedas/blob/main/Conversor-de-moedas/public/assets/Gerenciador-fav.png" width="400"> | <img src="https://github.com/Anathyon/Conversor-de-moedas/blob/main/Conversor-de-moedas/public/assets/Moedas-fav.png" width="400"> |
 
 ---
 
@@ -44,7 +44,7 @@ Visualize tendências de câmbio com gráficos interativos que mostram:
 
 | Gráfico de Tendências | Análise Temporal |
 |----------------------|------------------|
-| <img src="./assets/chart-trends.png" width="400"> | <img src="./assets/time-analysis.png" width="400"> |
+| <img src="https://github.com/Anathyon/Conversor-de-moedas/blob/main/Conversor-de-moedas/public/assets/Graf%C3%ADco.png" width="400"> | <img src="https://github.com/Anathyon/Conversor-de-moedas/blob/main/Conversor-de-moedas/public/assets/Conver%C3%A7%C3%A3o.png" width="400"> |
 
 ---
 
@@ -59,7 +59,7 @@ Transforme o conversor em um app nativo instalável:
 
 | Instalação Mobile | App Instalado |
 |------------------|---------------|
-| <img src="./assets/pwa-install-mobile.png" width="400"> | <img src="./assets/pwa-installed.png" width="400"> |
+| <img src="https://github.com/Anathyon/Conversor-de-moedas/blob/main/Conversor-de-moedas/public/assets/Mobile-light-mode.jpg" width="400"> | <img src="https://github.com/Anathyon/Conversor-de-moedas/blob/main/Conversor-de-moedas/public/assets/Mobile-dark-mode.jpg" width="400"> |
 
 ---
 
@@ -84,7 +84,7 @@ O layout foi desenvolvido com uma abordagem *mobile-first*, garantindo uma exper
 
 | Desktop (Tema Escuro) | Mobile (Tema Claro) |
 |-----------------------|---------------------|
-| <img src="./assets/converter-desktop-dark.png" width="400"> | <img src="./assets/converter-mobile-light.png" width="400"> |
+| <img src="https://github.com/Anathyon/Conversor-de-moedas/blob/main/Conversor-de-moedas/public/assets/Conver%C3%A7%C3%A3o.png" width="400"> | <img src="https://github.com/Anathyon/Conversor-de-moedas/blob/main/Conversor-de-moedas/public/assets/Mobile-light-mode.jpg" width="400"> |
 
 ### 📏 Breakpoints Responsivos
 - **Mobile**: < 768px - Layout vertical, botões grandes, texto legível
@@ -97,7 +97,7 @@ O layout foi desenvolvido com uma abordagem *mobile-first*, garantindo uma exper
 
 > ✅ O projeto está disponível para uso imediato!
 
-[🔗 **Acesse agora na Vercel**](https://conversor-moedas-inteligente.vercel.app/)
+[🔗 **Acesse agora na Vercel**](https://conversor-de-moedas-orcin.vercel.app/)
 
 ---
 
@@ -246,8 +246,8 @@ Este projeto está sob a licença MIT. Veja o arquivo `LICENSE` para mais detalh
 Desenvolvido com dedicação por: **Anathyon Erysson**
 
 📫 **Email**: anathyon@protonmail.com  
-🔗 **LinkedIn**: [Anathyon Erysson](https://linkedin.com/in/anathyon-erysson)  
-🐙 **GitHub**: [@anathyon](https://github.com/anathyon)
+🔗 **LinkedIn**: [Anathyon Erysson](https://www.linkedin.com/in/anathyonerysson/)  
+🐙 **GitHub**: [@anathyon](https://github.com/Anathyon)
 
 ---
 
