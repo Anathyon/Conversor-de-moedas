@@ -163,3 +163,8 @@ dist
 # Storybook build outputs
 .out
 .storybook-out
+
+# Testing
+coverage
+*.test.js.map
+test-results/

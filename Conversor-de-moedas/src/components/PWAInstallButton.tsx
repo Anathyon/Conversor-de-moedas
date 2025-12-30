@@ -2,22 +2,25 @@ import React from 'react';
 import { usePWAInstall } from '../hooks/usePWAInstall';
 import { Download, Smartphone } from 'lucide-react';
 
+/**
+ * Button to install the PWA.
+ * Shows specific UI based on installation status.
+ */
 export const PWAInstallButton: React.FC = () => {
   const { isInstallable, isInstalled, installPWA } = usePWAInstall();
 
   if (isInstalled) {
     return (
-      <div style={{
-        display: 'flex',
-        alignItems: 'center',
-        gap: '0.5rem',
-        padding: '0.5rem 1rem',
-        backgroundColor: '#059669',
-        color: 'white',
-        borderRadius: '0.5rem',
-        fontSize: '0.875rem',
-        fontWeight: '500'
-      }}>
+      <div 
+        className="flex items-center bg-emerald-600 text-white rounded-lg text-sm font-medium"
+        style={{
+          gap: '0.5rem',
+          paddingTop: '0.5rem',
+          paddingBottom: '0.5rem',
+          paddingLeft: '1rem',
+          paddingRight: '1rem'
+        }}
+      >
         <Smartphone size={16} />
         <span>App Instalado</span>
       </div>
@@ -31,25 +34,14 @@ export const PWAInstallButton: React.FC = () => {
   return (
     <button
       onClick={installPWA}
+      className="flex items-center bg-emerald-600 text-white border-none rounded-lg text-sm font-medium cursor-pointer transition-colors hover:bg-emerald-700"
+      aria-label="Instalar Aplicativo"
       style={{
-        display: 'flex',
-        alignItems: 'center',
         gap: '0.5rem',
-        padding: '0.5rem 1rem',
-        backgroundColor: '#059669',
-        color: 'white',
-        border: 'none',
-        borderRadius: '0.5rem',
-        fontSize: '0.875rem',
-        fontWeight: '500',
-        cursor: 'pointer',
-        transition: 'background-color 0.2s'
-      }}
-      onMouseEnter={(e) => {
-        e.currentTarget.style.backgroundColor = '#047857';
-      }}
-      onMouseLeave={(e) => {
-        e.currentTarget.style.backgroundColor = '#059669';
+        paddingTop: '0.5rem',
+        paddingBottom: '0.5rem',
+        paddingLeft: '1rem',
+        paddingRight: '1rem'
       }}
     >
       <Download size={16} />

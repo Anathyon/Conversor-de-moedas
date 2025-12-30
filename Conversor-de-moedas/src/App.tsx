@@ -15,15 +15,19 @@ const App: React.FC = () => {
   useEffect(() => {
     if (theme === 'dark') {
       document.documentElement.classList.add('dark');
-      document.body.style.backgroundColor = '#1F2937'; 
+      // Body background is now handled by CSS or the main container being full height
     } else {
       document.documentElement.classList.remove('dark');
-      document.body.style.backgroundColor = '#f3f4f6'; 
     }
   }, [theme]);
 
+  // Apply background color via class on the wrapper instead of inline implementation on body
+  // which is cleaner for React. However, to ensure full coverage, we might want to keep the body style 
+  // or set it in index.css. 
+  // Let's use the wrapper to control the background of the app area.
+  
   return (
-    <div style={{ minHeight: '100dvh' }}> 
+    <div className={`min-h-[100dvh] transition-colors duration-300 ${theme === 'dark' ? 'bg-gray-800' : 'bg-gray-100'}`}> 
       <Layout>
         <Converter />
         <FavoritesWrapper /> 
