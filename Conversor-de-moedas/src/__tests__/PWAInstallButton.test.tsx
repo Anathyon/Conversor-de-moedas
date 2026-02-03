@@ -1,55 +1,66 @@
-
-import React from 'react';
 import { render, screen } from '@testing-library/react';
-import { PWAInstallButton } from '../components/PWAInstallButton';
-import { usePWAInstall } from '../hooks/usePWAInstall';
+import { PWANotification } from '../components/notifications/PWANotification';
+import { useNotificationStore } from '../store/notificationStore';
 
-// Mock the hook
-jest.mock('../hooks/usePWAInstall');
+// Mock do store
+jest.mock('../store/notificationStore');
 
-describe('PWAInstallButton', () => {
+describe('PWANotification', () => {
+  const mockHideNotification = jest.fn();
   const mockInstallPWA = jest.fn();
 
   beforeEach(() => {
     jest.clearAllMocks();
   });
 
-  it('does not render when not installable', () => {
-    (usePWAInstall as jest.Mock).mockReturnValue({
-      isInstallable: false,
-      isInstalled: false,
+  it('does not render when showPWANotification is false', () => {
+    (useNotificationStore as unknown as jest.Mock).mockReturnValue({
+      showPWANotification: false,
+      hideNotification: mockHideNotification,
       installPWA: mockInstallPWA,
     });
 
-    const { container } = render(<PWAInstallButton />);
+    const { container } = render(<PWANotification />);
     expect(container).toBeEmptyDOMElement();
   });
 
-  it('renders "App Instalado" when installed', () => {
-    (usePWAInstall as jest.Mock).mockReturnValue({
-      isInstallable: false,
-      isInstalled: true,
+  it('renders notification when showPWANotification is true', () => {
+    (useNotificationStore as unknown as jest.Mock).mockReturnValue({
+      showPWANotification: true,
+      hideNotification: mockHideNotification,
       installPWA: mockInstallPWA,
     });
 
-    render(<PWAInstallButton />);
-    expect(screen.getByText('App Instalado')).toBeInTheDocument();
+    render(<PWANotification />);
+    expect(screen.getByText('Instalar Conversor de Moedas')).toBeInTheDocument();
+    expect(screen.getByText('Instale nosso conversor para usar offline e ter acesso rápido!')).toBeInTheDocument();
   });
 
-  it('renders install button when installable', () => {
-    (usePWAInstall as jest.Mock).mockReturnValue({
-      isInstallable: true,
-      isInstalled: false,
+  it('calls installPWA when install button is clicked', () => {
+    (useNotificationStore as unknown as jest.Mock).mockReturnValue({
+      showPWANotification: true,
+      hideNotification: mockHideNotification,
       installPWA: mockInstallPWA,
     });
 
-    render(<PWAInstallButton />);
+    render(<PWANotification />);
     
-    const button = screen.getByRole('button', { name: /instalar aplicativo/i });
-    expect(button).toBeInTheDocument();
-    
-    // Simulate click
-    button.click();
+    const installButton = screen.getByText('Instalar');
+    installButton.click();
     expect(mockInstallPWA).toHaveBeenCalled();
+  });
+
+  it('calls hideNotification when close button is clicked', () => {
+    (useNotificationStore as unknown as jest.Mock).mockReturnValue({
+      showPWANotification: true,
+      hideNotification: mockHideNotification,
+      installPWA: mockInstallPWA,
+    });
+
+    render(<PWANotification />);
+    
+    const closeButton = screen.getByRole('button', { name: '' }); // X button
+    closeButton.click();
+    expect(mockHideNotification).toHaveBeenCalled();
   });
 });

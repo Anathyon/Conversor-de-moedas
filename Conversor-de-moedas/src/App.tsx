@@ -5,6 +5,7 @@ import { Converter } from './components/converter/Converter';
 import { ChartCard } from './components/converter/ChartCard'; 
 import { FavoritesWrapper } from './components/favorites/FavoritesWrapper';
 import { PWANotification } from './components/notifications/PWANotification';
+import { ToastContainer } from './components/notifications/ToastContainer';
 import { usePWAInstall } from './hooks/usePWAInstall';
 
 const App: React.FC = () => {
@@ -33,6 +34,7 @@ const App: React.FC = () => {
         <ChartCard />
       </Layout>
       <PWANotification />
+      <ToastContainer />
     </div>
   );
 };

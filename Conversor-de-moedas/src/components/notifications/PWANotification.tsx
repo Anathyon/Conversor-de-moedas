@@ -1,16 +1,15 @@
 import React, { useEffect } from 'react';
 import { useNotificationStore } from '../../store/notificationStore';
-import { Download, X } from 'lucide-react';
+import { CheckCircle, X } from 'lucide-react';
 
 export const PWANotification: React.FC = () => {
   const { showPWANotification, hideNotification, installPWA } = useNotificationStore();
 
   useEffect(() => {
     if (showPWANotification) {
-      // Auto-hide após 3 segundos
       const timer = setTimeout(() => {
         hideNotification();
-      }, 3000);
+      }, 8000);
 
       return () => clearTimeout(timer);
     }
@@ -20,41 +19,41 @@ export const PWANotification: React.FC = () => {
 
   return (
     <div className="fixed top-4 right-4 z-50 animate-slide-in">
-      <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg p-4 max-w-sm">
-        <div className="flex items-start justify-between">
-          <div className="flex items-center space-x-3">
-            <div className="flex-shrink-0">
-              <Download className="w-6 h-6 text-green-500" />
-            </div>
-            <div className="flex-1">
-              <h3 className="text-sm font-medium text-gray-900 dark:text-white">
-                Instalar App
-              </h3>
-              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                Instale nosso app para acesso rapido e offline!
-              </p>
-            </div>
-          </div>
-          <button
-            onClick={hideNotification}
-            className="flex-shrink-0 ml-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
-          >
-            <X className="w-4 h-4" />
-          </button>
+      <div className="bg-green-600 text-white rounded-2xl shadow-2xl p-6 max-w-sm relative">
+        {/* Botão X no canto superior direito */}
+        <button
+          onClick={hideNotification}
+          className="absolute top-3 right-3 text-white text-opacity-70 hover:text-opacity-100 transition-opacity"
+        >
+          <X className="w-5 h-5" />
+        </button>
+
+        {/* Header com ícone e título */}
+        <div className="flex items-center space-x-3 mb-4">
+          <CheckCircle className="w-6 h-6 text-white flex-shrink-0" />
+          <h3 className="text-lg font-bold text-white pr-6">
+            Instalar Conversor de Moedas
+          </h3>
         </div>
         
-        <div className="mt-3 flex space-x-2">
-          <button
-            onClick={installPWA}
-            className="flex-1 bg-green-500 hover:bg-green-600 text-white text-xs font-medium py-2 px-3 rounded-md transition-colors"
-          >
-            Instalar
-          </button>
+        {/* Descrição */}
+        <p className="text-white text-opacity-95 text-sm mb-6 leading-relaxed">
+          Instale nosso conversor para usar offline e ter acesso rápido!
+        </p>
+        
+        {/* Botões */}
+        <div className="flex space-x-3">
           <button
             onClick={hideNotification}
-            className="flex-1 bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 text-xs font-medium py-2 px-3 rounded-md transition-colors"
+            className="flex-1 bg-transparent border-2 border-white border-opacity-40 hover:border-opacity-60 text-white font-medium py-3 px-4 rounded-xl transition-all duration-200 text-sm"
           >
-            Agora nao
+            Agora não
+          </button>
+          <button
+            onClick={installPWA}
+            className="flex-1 bg-white bg-opacity-20 hover:bg-opacity-30 backdrop-blur-sm text-white font-bold py-3 px-4 rounded-xl transition-all duration-200 text-sm border border-white border-opacity-30"
+          >
+            Instalar
           </button>
         </div>
       </div>

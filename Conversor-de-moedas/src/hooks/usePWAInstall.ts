@@ -1,32 +1,42 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useNotificationStore } from '../store/notificationStore';
 
 export const usePWAInstall = () => {
-  const { setDeferredPrompt, showNotification } = useNotificationStore();
+  const { setDeferredPrompt, showNotification, installPWA } = useNotificationStore();
+  const [isInstallable, setIsInstallable] = useState(false);
+  const [isInstalled, setIsInstalled] = useState(false);
 
   useEffect(() => {
     const handleBeforeInstallPrompt = (e: Event) => {
-      // Previne o prompt automático do browser
+      // Prevent automatic prompt
       e.preventDefault();
-      // Salva o evento para usar depois
+      // Save the event
       setDeferredPrompt(e);
-      // Mostra nossa notificação customizada
+      setIsInstallable(true);
+      // Show notification if desired
       showNotification();
     };
 
     const handleAppInstalled = () => {
-      console.log('PWA foi instalada');
+      console.log('PWA installed successfully');
       setDeferredPrompt(null);
+      setIsInstallable(false);
+      setIsInstalled(true);
     };
 
-    // Adiciona os event listeners
+    // Check if already installed (standalone mode)
+    if (window.matchMedia('(display-mode: standalone)').matches) {
+      setIsInstalled(true);
+    }
+
     window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
     window.addEventListener('appinstalled', handleAppInstalled);
 
-    // Cleanup
     return () => {
       window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
       window.removeEventListener('appinstalled', handleAppInstalled);
     };
   }, [setDeferredPrompt, showNotification]);
+
+  return { isInstallable, isInstalled, installPWA };
 };

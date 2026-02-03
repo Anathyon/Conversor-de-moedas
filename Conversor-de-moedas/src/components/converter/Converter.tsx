@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useCurrencyStore } from '../../store/currencyStore'; 
+import { useNotificationStore } from '../../store/notificationStore';
 import { calculateConversion } from '../../utils/conversion';
 import { format } from 'date-fns';
 
@@ -103,12 +104,27 @@ export const Converter: React.FC = () => {
   const [conversionRate, setConversionRate] = useState<number | null>(null);
   const hasFetched = useRef(false); 
 
+  const addToast = useNotificationStore(state => state.addToast);
+
+  // Auto-conversion effect
   useEffect(() => {
     if (Object.keys(rates).length === 0 && !hasFetched.current) {
       hasFetched.current = true; 
-      fetchRates();
+      fetchRates().catch(() => addToast("Erro ao carregar taxas iniciais.", "error"));
     }
-  }, [fetchRates, rates]);
+  }, [fetchRates, rates, addToast]);
+
+  // Effect to recalculate when dependencies change
+  useEffect(() => {
+    if (amount > 0 && fromCurrency && toCurrency && Object.keys(rates).length > 0) {
+        const conversion = calculateConversion(amount, fromCurrency, toCurrency, rates);
+        if (conversion.success) {
+            setResult(conversion.result);
+            setConversionRate(conversion.rate);
+        }
+    }
+  }, [amount, fromCurrency, toCurrency, rates]);
+
 
   const handleConvert = () => {
     if (!amount || amount <= 0 || !fromCurrency || !toCurrency || Object.keys(rates).length === 0) return;
